@@ -6,14 +6,19 @@ function Modal({ notedata, getnotes, closeModal }) {
     title: "",
     content: "",
     tags: "",
+    hide: false,
   });
   useEffect(() => {
-    setFormData({
-      title: notedata?.note?.title || "",
-      content: notedata?.note?.content || "",
-      tags: notedata?.note?.tags || "",
-    });
-  }, [notedata]);
+    if (notedata?.note) {
+      setFormData((prev) => ({
+        ...prev,
+        title: notedata.note.title || "",
+        content: notedata.note.content || "",
+        tags: notedata.note.tags || "",
+        hide: notedata.note.hidden, // Ensure boolean
+      }));
+    }
+  }, [notedata]); // Runs only when `notedata` changes
 
   const addNote = async (e) => {
     e.preventDefault();
@@ -22,11 +27,12 @@ function Modal({ notedata, getnotes, closeModal }) {
         title: formData.title,
         content: formData.content,
         tags: formData.tags,
+        hidden: formData.hide,
       });
       console.log(response);
 
       if (response.data && response.data.note) {
-        getnotes();
+        await getnotes();
         closeModal();
       }
     } catch (error) {
@@ -40,11 +46,12 @@ function Modal({ notedata, getnotes, closeModal }) {
         title: formData.title,
         content: formData.content,
         tags: formData.tags,
+        hidden: formData.hide,
       });
       console.log(response);
 
       if (response.data && response.data.note) {
-        getnotes();
+        await getnotes();
         closeModal();
       }
     } catch (error) {
@@ -60,11 +67,18 @@ function Modal({ notedata, getnotes, closeModal }) {
     });
   };
 
+  const hideToggle = (e) => {
+    e.preventDefault();
+    setFormData((prevFormData) => {
+      const newHideState = !prevFormData.hide;
+      console.log("New hide state:", newHideState); // Correct log
+      return { ...prevFormData, hide: newHideState };
+    });
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-md shadow-lg w-1/3">
-        <h2 className="text-xl font-bold mb-1">Title</h2>
-
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -75,6 +89,26 @@ function Modal({ notedata, getnotes, closeModal }) {
             }
           }}
         >
+          <div className="flex justify-between">
+            <h2 className="text-xl font-bold mb-1">Title</h2>
+            <div className="flex w-full justify-end">
+              <span className="mr-2 font-semibold pt-1">
+                {formData.hide ? "unhide" : "hide"}
+              </span>
+              <button
+                className={`${
+                  !formData.hide
+                    ? "justify-start bg-green-500"
+                    : "justify-end bg-red-400"
+                }  rounded-full h-8 w-[15%] mb-3 pb-2 flex items-center`}
+                onClick={hideToggle}
+                value={formData.hide}
+                name="hidden"
+              >
+                <div className="bg-black h-full rounded-full w-5/12 mt-1.5 ml-1 mr-1"></div>
+              </button>
+            </div>
+          </div>
           <input
             type="text"
             name="title"
@@ -106,7 +140,7 @@ function Modal({ notedata, getnotes, closeModal }) {
           <div className="flex justify-end">
             <button
               type="button"
-              className="bg-gray-500 text-white font-bold py-2 px-4 rounded mr-2"
+              className="bg-red-500 text-white font-bold py-2 px-4 rounded mr-2"
               onClick={closeModal}
             >
               Close

@@ -96,6 +96,7 @@ export const Dashboard = () => {
                 date={moment(note.date).format("DD/MM/YYYY")}
                 content={note.content}
                 tags={note.tags}
+                hidden={note.hidden}
                 onDelete={() => {
                   onDelete(note._id);
                 }}

@@ -10,11 +10,16 @@ export const Notescard = ({
   tags,
   onEdit,
   content,
+  hidden,
   onClick,
 }) => {
   return (
     <div className="flex justify-center px-20">
-      <div className="flex border rounded-lg items-center">
+      <div
+        className={`${
+          hidden ? "bg-gradient-to-b from-red-300 to-red-50" : ""
+        } flex border rounded-lg items-center`}
+      >
         <div className="h-48 w-[22rem] p-4 overflow-auto px-5">
           <h2 className="text-2xl font-medium">{title}</h2>
           <p className="text-gray-500 mb-4">{date}</p>

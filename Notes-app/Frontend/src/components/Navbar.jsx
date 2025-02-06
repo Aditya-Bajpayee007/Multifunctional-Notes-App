@@ -19,7 +19,25 @@ export const Navbar = ({ name, handlesearch }) => {
 
   return (
     <div className="flex justify-between px-6 items-center py-3">
-      <div className="text-3xl font-serif font-bold">Notes</div>
+      <div className="flex">
+        <div
+          className="text-3xl font-serif font-bold hover:cursor-pointer"
+          onClick={() => {
+            navigate("/dashboard");
+          }}
+        >
+          Notes
+        </div>
+        <div
+          className="text-xl font-serif font-semibold hover:cursor-pointer ml-5 pt-1.5 "
+          onClick={() => {
+            navigate("/myprofile");
+          }}
+        >
+          myProfile
+        </div>
+      </div>
+
       <div>
         <Searchbar
           onChange={(e) => {

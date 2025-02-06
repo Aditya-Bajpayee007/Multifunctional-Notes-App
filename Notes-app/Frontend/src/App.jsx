@@ -4,6 +4,7 @@ import { Signup } from "./pages/Signup";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { Explore } from "./pages/Explore";
+import { MyProfile } from "./pages/MyProfile";
 function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />}></Route>
         <Route path="/explore" element={<Explore />}></Route>
         <Route path="/explore/:username" element={<Explore />} />
+        <Route path="/myprofile" element={<MyProfile />} />
       </Routes>
     </BrowserRouter>
   );

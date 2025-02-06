@@ -1,5 +1,4 @@
 require("dotenv").config();
-// const config = require("./config.json");
 
 const jwt = require("jsonwebtoken");
 const authenticatetoken = require("./utility");
@@ -132,7 +131,7 @@ app.get("/user", authenticatetoken, async (req, res) => {
 
 //ADD NOTE
 app.post("/add-note", authenticatetoken, async (req, res) => {
-  const { title, content, tags } = req.body;
+  const { title, content, tags, hidden } = req.body;
   const { _id } = req.user;
 
   if (!title) {
@@ -148,6 +147,7 @@ app.post("/add-note", authenticatetoken, async (req, res) => {
       content,
       tags: tags || [],
       userId: _id,
+      hidden,
     });
     await note.save();
     return res.json({
@@ -162,10 +162,10 @@ app.post("/add-note", authenticatetoken, async (req, res) => {
 //EDIT NOTE
 app.put("/edit-note/:noteId", authenticatetoken, async (req, res) => {
   // console.log("Params:", req.params);
-  // console.log("Body:", req.body);
+  console.log("Body:", req.body);
   // console.log("User:", req.user);
   const noteId = req.params.noteId;
-  const { title, content, tags } = req.body;
+  const { title, content, tags, hidden } = req.body;
 
   try {
     const note = await Notes.findOne({ _id: noteId, userId: req.user._id });
@@ -182,6 +182,9 @@ app.put("/edit-note/:noteId", authenticatetoken, async (req, res) => {
     }
     if (tags) {
       note.tags = tags;
+    }
+    if (hidden !== undefined) {
+      note.hidden = hidden;
     }
     await note.save();
     return res.json({
@@ -246,6 +249,7 @@ app.delete("/delete-note/:noteId", authenticatetoken, async (req, res) => {
   }
 });
 
+//GET ALL USERS
 app.get("/get-all-users", authenticatetoken, async (req, res) => {
   const { _id } = req.user;
   try {
@@ -259,10 +263,11 @@ app.get("/get-all-users", authenticatetoken, async (req, res) => {
   }
 });
 
+//GET USER NOTES
 app.get("/get-user-notes/:userID", authenticatetoken, async (req, res) => {
   const { userID } = req.params;
   try {
-    const usernotes = await Notes.find({ userId: userID });
+    const usernotes = await Notes.find({ userId: userID, hidden: false });
     return res.json({
       usernotes,
       message: "users notes",

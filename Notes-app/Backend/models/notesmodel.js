@@ -22,6 +22,10 @@ const notesSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  hidden: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 module.exports = mongoose.model("Notes", notesSchema);

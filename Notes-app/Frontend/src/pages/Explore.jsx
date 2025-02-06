@@ -12,7 +12,7 @@ export const Explore = () => {
   const [alluser, Setallusers] = useState([]);
   const [selecteduser, Setselecteduser] = useState();
   const [note, setNote] = useState([]);
-  console.log("motes ", note);
+  const [loading, setLoading] = useState(true);
 
   let userID = useParams();
 
@@ -26,6 +26,8 @@ export const Explore = () => {
       console.log("Error response:", error.response);
       localStorage.clear();
       navigate("/login");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,6 +79,13 @@ export const Explore = () => {
   //   userID;
   // }, userID);
 
+  if (loading)
+    return (
+      <span className="h-screen w-screen flex justify-center items-center">
+        Loading...
+      </span>
+    );
+
   return Object.keys(userID).length === 0 ? (
     <div>
       <Navbar name={name} handlesearch={handlesearch} />
@@ -101,7 +110,7 @@ export const Explore = () => {
       <Navbar name={name} handlesearch={handlesearch} />
       <hr />
       <h1 className="text-3xl font-bold tracking-wide text-center my-5 font-serif">
-        Notes for {selecteduser} :
+        Notes of {selecteduser} :
       </h1>
       <div className="grid grid-cols-3 gap-8 w-full mt-10 mb-20">
         {note.length > 0 ? (
