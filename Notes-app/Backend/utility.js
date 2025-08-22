@@ -15,8 +15,7 @@ function authenticatetoken(req, res, next) {
     if (!user._id)
       return res.status(401).json({ message: "Invalid token payload." });
 
-    req.user = user; // Set the user object to req
-    // console.log("Token is valid:", req.user); // Log to confirm
+    req.user = user;
     next();
   });
 }
