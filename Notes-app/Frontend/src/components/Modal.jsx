@@ -77,8 +77,8 @@ function Modal({ notedata, getnotes, closeModal }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-md shadow-lg w-1/3">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-1/2 max-w-2xl max-h-[90vh] overflow-y-auto">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -89,69 +89,89 @@ function Modal({ notedata, getnotes, closeModal }) {
             }
           }}
         >
-          <div className="flex justify-between">
-            <h2 className="text-xl font-bold mb-1">Title</h2>
-            <div className="flex w-full justify-end">
-              <span className="mr-2 font-semibold pt-1">
-                {formData.hide ? "unhide" : "hide"}
+          <div className="flex justify-between items-start mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {notedata && notedata.note && notedata.note._id
+                ? "Edit Note"
+                : "Add New Note"}
+            </h2>
+            <div className="flex items-center">
+              <span className="mr-3 font-medium text-gray-600">
+                {formData.hide ? "Private" : "Public"}
               </span>
               <button
                 className={`${
                   !formData.hide
-                    ? "justify-start bg-green-500"
-                    : "justify-end bg-red-400"
-                }  rounded-full h-8 w-[15%] mb-3 pb-2 flex items-center`}
+                    ? "bg-green-500 justify-start"
+                    : "bg-red-400 justify-end"
+                } relative rounded-full h-6 w-12 transition-all duration-200 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 onClick={hideToggle}
-                value={formData.hide}
-                name="hidden"
+                type="button"
               >
-                <div className="bg-black h-full rounded-full w-5/12 mt-1.5 ml-1 mr-1"></div>
+                <div className="bg-white h-5 w-5 rounded-full shadow-md transform transition-transform duration-200"></div>
               </button>
             </div>
           </div>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="w-full p-2 text-lg mb-4 border rounded-md"
-            placeholder="Title"
-            required
-          />
-          <h4 className="text-lg font-normal mb-1">Description</h4>
-          <textarea
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            className="w-full p-2 mb-4 border rounded-md"
-            placeholder="Content"
-            required
-          ></textarea>
 
-          <input
-            type="text"
-            name="tags"
-            value={formData.tags}
-            onChange={handleChange}
-            className="w-full p-2 mb-4 border rounded-md"
-            placeholder="Tags"
-          />
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              placeholder="Enter note title..."
+              required
+            />
+          </div>
 
-          <div className="flex justify-end">
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              rows="6"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+              placeholder="Write your note content..."
+              required
+            ></textarea>
+          </div>
+
+          <div className="mb-8">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Tags
+            </label>
+            <input
+              type="text"
+              name="tags"
+              value={formData.tags}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              placeholder="Enter tags separated by commas..."
+            />
+          </div>
+
+          <div className="flex justify-end space-x-4">
             <button
               type="button"
-              className="bg-red-500 text-white font-bold py-2 px-4 rounded mr-2"
+              className="px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
               onClick={closeModal}
             >
-              Close
+              Cancel
             </button>
             <button
               type="submit"
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {notedata && notedata.note && notedata.note._id
-                ? "Edit Note"
-                : "Add Note"}
+                ? "Update Note"
+                : "Create Note"}
             </button>
           </div>
         </form>

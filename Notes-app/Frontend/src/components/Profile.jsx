@@ -1,8 +1,4 @@
-import React from "react";
-// import { useNavigate } from "react-router-dom";
-
 export const Profile = ({ name, onLogout }) => {
-  // const navigate = useNavigate();
   const initial = (names) => {
     if (!names) return "";
     const word = String(names).split(" ");
@@ -15,19 +11,25 @@ export const Profile = ({ name, onLogout }) => {
     return initial.toUpperCase();
   };
 
-  // const onclick = () => {
-  //   localStorage.clear();
-  //   navigate("/signup");
-  // };
-
   return (
-    <div className="flex">
-      <div className=" font-bold mr-4 h-12 w-12 flex items-center border rounded-full justify-center bg-slate-200">
-        {initial(name.username)}
+    <div className="flex items-center space-x-3">
+      {/* Avatar */}
+      <div className="relative">
+        <div className="font-bold h-12 w-12 flex items-center justify-center border-2 border-gray-200 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 shadow-sm hover:shadow-md transition-all duration-200">
+          {initial(name.username)}
+        </div>
+        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
       </div>
-      <div>
-        <h4 className="font-semibold">{name.username}</h4>
-        <button className="underline text-slate-600" onClick={onLogout}>
+
+      {/* User Info */}
+      <div className="flex flex-col">
+        <h4 className="font-semibold text-gray-800 text-sm leading-tight">
+          {name.username}
+        </h4>
+        <button
+          className="text-xs text-gray-500 hover:text-red-600 transition-colors duration-200 text-left font-medium"
+          onClick={onLogout}
+        >
           Logout
         </button>
       </div>

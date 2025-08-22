@@ -15,6 +15,8 @@ export const Dashboard = () => {
   const [notes, setNotes] = useState([]);
   const [allNotes, setAllNotes] = useState([]); // To keep a copy of all notes
   const [notedata, setnotedata] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const getuserinfo = async () => {
     try {
@@ -38,11 +40,13 @@ export const Dashboard = () => {
       }
     } catch (error) {
       console.log(error);
+      setError("Failed to load note details");
     }
   };
 
   const getnotes = async () => {
     try {
+      setLoading(true);
       const response = await axiosInstance.get("/get-all-notes");
       if (response.data) {
         setNotes(response.data.notes);
@@ -50,6 +54,9 @@ export const Dashboard = () => {
       }
     } catch (error) {
       console.log(error);
+      setError("Failed to load notes");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,6 +69,7 @@ export const Dashboard = () => {
       }
     } catch (error) {
       console.log(error);
+      setError("Failed to delete note");
     }
   };
 
@@ -76,61 +84,175 @@ export const Dashboard = () => {
   };
 
   const handleSearch = (text) => {
-    const filteredNotes = allNotes.filter((note) =>
-      note.title.toLowerCase().includes(text.toLowerCase())
+    if (!text.trim()) {
+      setNotes(allNotes);
+      return;
+    }
+    const filteredNotes = allNotes.filter(
+      (note) =>
+        note.title.toLowerCase().includes(text.toLowerCase()) ||
+        note.content.toLowerCase().includes(text.toLowerCase())
     );
     setNotes(filteredNotes);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Navbar name={name} handlesearch={handleSearch} />
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading your notes...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 font-sans">
       <Navbar name={name} handlesearch={handleSearch} />
-      <hr />
-      <div className="grid grid-cols-3 gap-8 w-full mt-10 mb-20">
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Welcome back, {name.username}!
+              </h1>
+              <p className="text-gray-600 font-light">
+                {notes.length > 0
+                  ? `You have ${notes.length} ${
+                      notes.length === 1 ? "note" : "notes"
+                    }`
+                  : "Start creating your first note"}
+              </p>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="hidden md:flex space-x-4">
+              <div className="bg-white rounded-lg shadow-md p-4 text-center min-w-[100px]">
+                <p className="text-2xl font-bold text-blue-600">
+                  {allNotes.length}
+                </p>
+                <p className="text-sm text-gray-600">Total Notes</p>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-4 text-center min-w-[100px]">
+                <p className="text-2xl font-bold text-green-600">
+                  {allNotes.filter((note) => !note.hidden).length}
+                </p>
+                <p className="text-sm text-gray-600">Public</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+            <button
+              onClick={() => setError("")}
+              className="ml-4 text-red-500 hover:text-red-700"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Notes Grid */}
         {notes.length > 0 ? (
-          notes.map((note, index) => {
-            return (
-              <Notescard
-                key={index}
-                title={note.title}
-                date={moment(note.date).format("DD/MM/YYYY")}
-                content={note.content}
-                tags={note.tags}
-                hidden={note.hidden}
-                onDelete={() => {
-                  onDelete(note._id);
-                }}
-                onEdit={() => {
-                  getsinglenote(note._id);
-                  handleModal();
-                }}
-              />
-            );
-          })
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-20">
+            {notes.map((note, index) => {
+              return (
+                <div
+                  key={note._id || index}
+                  className="transform hover:scale-105 transition-transform duration-200"
+                >
+                  <Notescard
+                    title={note.title}
+                    date={moment(note.date).format("DD/MM/YYYY")}
+                    content={note.content}
+                    tags={note.tags}
+                    hidden={note.hidden}
+                    onDelete={() => {
+                      if (
+                        window.confirm(
+                          "Are you sure you want to delete this note?"
+                        )
+                      ) {
+                        onDelete(note._id);
+                      }
+                    }}
+                    onEdit={() => {
+                      getsinglenote(note._id);
+                      handleModal();
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
         ) : (
-          <div className="col-span-full pt-20">
-            <h1 className="text-3xl text-center duration-100 animate-bounce">
-              No notes found
-            </h1>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="text-center max-w-md">
+              <div className="mb-6">
+                <svg
+                  className="w-24 h-24 text-gray-300 mx-auto mb-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-700 mb-3">
+                {allNotes.length === 0 ? "No notes yet" : "No notes found"}
+              </h3>
+              <p className="text-gray-500 mb-6">
+                {allNotes.length === 0
+                  ? "Start your journey by creating your first note. Click the + button to get started!"
+                  : "Try adjusting your search terms or create a new note."}
+              </p>
+              <button
+                onClick={handleModal}
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
+              >
+                <GoPlus className="mr-2" />
+                Create Your First Note
+              </button>
+            </div>
           </div>
         )}
       </div>
-      <div className="relative">
+
+      {/* Floating Action Button */}
+      <div className="fixed bottom-8 right-8 z-40">
         <Button
           text={<GoPlus />}
-          className={
-            "hover:bg-blue-700 hover:scale-110 border text-4xl flex justify-center items-center h-12 w-12 font-bold bg-blue-500 text-white rounded-xl absolute bottom-0 right-10"
-          }
+          className="h-14 w-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 flex items-center justify-center text-2xl border-none"
           onClick={handleModal}
         />
-        {showModal && (
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50">
           <Modal
             notedata={notedata}
             closeModal={handleModal}
             getnotes={getnotes}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
